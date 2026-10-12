@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Marquee } from "./pop";
 
 const COLS: { head: string; links: [string, string][] }[] = [
   { head: "Division", links: [
@@ -24,6 +25,7 @@ export function Footer(){
   if (pathname?.startsWith("/app") || pathname?.startsWith("/admin")) return null;
   return (
     <footer className="bg-ink border-t border-white/10">
+      <Marquee volt items={["Wear it first", "Try before you buy", "Point. Try. Snap.", "New heat weekly"]} />
       <div className="max-w-[1280px] mx-auto px-4 lg:px-6 pt-12 pb-8">
         <div className="font-display uppercase text-[13vw] lg:text-[120px] leading-none text-outline opacity-20 select-none whitespace-nowrap overflow-hidden">
           Raritone
@@ -34,6 +36,10 @@ export function Footer(){
             <p className="text-sm text-smoke leading-relaxed mt-3 max-w-xs">
               The camera-first try-on division. Point. Try. Snap.
             </p>
+            <div className="flex flex-wrap gap-2 mt-4">
+              <span className="bg-blood text-white text-[10px] font-bold tracking-[0.18em] uppercase px-2 py-1 -rotate-2">Est. 2026</span>
+              <span className="bg-volt text-ink text-[10px] font-bold tracking-[0.18em] uppercase px-2 py-1 rotate-2">Wear it first</span>
+            </div>
             <div className="mt-4 text-xs text-smoke/60">© {new Date().getFullYear()} Raritone Private Limited.</div>
           </div>
           {COLS.map(c=>(

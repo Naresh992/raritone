@@ -90,17 +90,17 @@ export default function Checkout(){
   return (
     <div className="max-w-[960px] mx-auto px-4 lg:px-6 py-6 grid lg:grid-cols-[1fr_360px] gap-6">
       <div>
-        <h1 className="font-display text-2xl">Checkout</h1>
+        <h1 className="font-display uppercase text-2xl lg:text-3xl">Checkout</h1>
         <div className="flex gap-2 mt-4">
           {[1,2,3].map(n=>(
-            <button key={n} onClick={()=>setStep(n as Step)} className={`flex-1 h-9 text-xs tracking-widest uppercase font-medium border ${step===n?"bg-ink text-white border-ink":"bg-white border-stoney-300"}`}>
+            <button key={n} onClick={()=>setStep(n as Step)} className={`flex-1 h-9 text-xs tracking-widest uppercase font-bold border ${step===n?"bg-blood text-white border-blood":"bg-transparent border-white/20 text-smoke"}`}>
               {n===1?"Address": n===2?"Delivery":"Payment"}
             </button>
           ))}
         </div>
 
         {step===1 && (
-          <div className="mt-6 space-y-4 border border-stoney-200 p-4 lg:p-6">
+          <div className="mt-6 space-y-4 border border-white/10 p-4 lg:p-6">
             <div className="grid lg:grid-cols-2 gap-4">
               <div><Label>Full name *</Label><Input value={form.full_name} onChange={e=>setForm({...form, full_name:e.target.value})}/></div>
               <div><Label>Phone *</Label><Input value={form.phone} onChange={e=>setForm({...form, phone:e.target.value})} placeholder="10-digit mobile"/></div>
@@ -117,14 +117,14 @@ export default function Checkout(){
         )}
 
         {step===2 && (
-          <div className="mt-6 space-y-4 border border-stoney-200 p-4 lg:p-6">
+          <div className="mt-6 space-y-4 border border-white/10 p-4 lg:p-6">
             {[
               { id:"standard", title:"Standard Delivery", desc:"3–5 days", fee: subtotal>=1999?0:79 },
               { id:"express", title:"Express Delivery", desc:"1–2 days", fee:199 },
             ].map(o=>(
-              <label key={o.id} className={`flex items-center gap-3 border p-4 cursor-pointer ${delivery===o.id?"border-ink bg-stoney-50":"border-stoney-200"}`}>
+              <label key={o.id} className={`flex items-center gap-3 border p-4 cursor-pointer ${delivery===o.id?"border-blood bg-blood-dark/40":"border-white/10"}`}>
                 <input type="radio" checked={delivery===o.id} onChange={()=>setDelivery(o.id as any)} />
-                <div className="flex-1"><div className="text-sm font-medium">{o.title}</div><div className="text-xs text-stoney-600">{o.desc}</div></div>
+                <div className="flex-1"><div className="text-sm font-medium">{o.title}</div><div className="text-xs text-smoke">{o.desc}</div></div>
                 <div className="text-sm font-semibold">{o.fee===0? "Free": inr(o.fee)}</div>
               </label>
             ))}
@@ -136,27 +136,27 @@ export default function Checkout(){
         )}
 
         {step===3 && (
-          <div className="mt-6 border border-stoney-200 p-4 lg:p-6 space-y-4">
+          <div className="mt-6 border border-white/10 p-4 lg:p-6 space-y-4">
             <div className="text-sm font-medium">Payment</div>
-            <div className="bg-stoney-50 border border-stoney-200 p-4 text-sm leading-relaxed">
-              <div className="font-medium">Razorpay checkout</div>
-              <div className="text-stoney-600 mt-1">Supports UPI, cards, net banking and wallets. You’ll complete payment securely in the Razorpay window. No card details are stored by Raritone.</div>
-              <div className="text-xs text-stoney-600 mt-2">When Razorpay isn’t configured, checkout completes in demo mode (no real charge) — clearly labelled.</div>
+            <div className="bg-white/[0.03] border border-white/10 p-4 text-sm leading-relaxed">
+              <div className="font-bold">Razorpay checkout</div>
+              <div className="text-smoke mt-1">Supports UPI, cards, net banking and wallets. You’ll complete payment securely in the Razorpay window. No card details are stored by Raritone.</div>
+              <div className="text-xs text-smoke mt-2">When Razorpay isn’t configured, checkout completes in demo mode (no real charge) — clearly labelled.</div>
             </div>
             <div className="flex gap-2">
               <Button variant="secondary" className="flex-1" onClick={()=>setStep(2)}>Back</Button>
               <Button className="flex-1" disabled={paying} onClick={placeOrder}>{paying? "Processing…": `Pay ${inr(total)}`}</Button>
             </div>
-            <div className="text-xs text-stoney-600 text-center">By placing your order you agree to our <a href="/terms" className="underline underline-offset-4">Terms</a> and <a href="/privacy" className="underline underline-offset-4">Privacy Policy</a>.</div>
+            <div className="text-xs text-smoke text-center">By placing your order you agree to our <a href="/terms" className="underline underline-offset-4">Terms</a> and <a href="/privacy" className="underline underline-offset-4">Privacy Policy</a>.</div>
           </div>
         )}
       </div>
 
-      <div className="border border-stoney-200 p-5 h-fit lg:sticky lg:top-[88px]">
-        <div className="text-sm font-semibold">Order summary · {items.length} items</div>
+      <div className="bg-coal border border-white/10 p-5 h-fit lg:sticky lg:top-[88px]">
+        <div className="font-display uppercase">Order summary · {items.length} items</div>
         <div className="mt-3 space-y-2 text-sm">
           {items.map(it=>(
-            <div key={it.productId+it.size} className="flex justify-between text-stoney-600"><span>{it.name} ×{it.qty}</span><span>{inr((it.salePrice??it.price)*it.qty)}</span></div>
+            <div key={it.productId+it.size} className="flex justify-between text-smoke"><span>{it.name} ×{it.qty}</span><span>{inr((it.salePrice??it.price)*it.qty)}</span></div>
           ))}
           <div className="h-px bg-stoney-200 my-2"/>
           <div className="flex justify-between"><span>Subtotal</span><span>{inr(subtotal)}</span></div>

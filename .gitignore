@@ -24,6 +24,11 @@ venv/
 *.db-journal
 *.log
 
+# Private uploads (try-on photos, avatars — never commit)
+data/
+backend/data/
+*/data/
+
 # Editor / OS
 .DS_Store
 Thumbs.db

@@ -26,6 +26,11 @@ const config: Config = {
       animation: {
         marquee: "marquee 20s linear infinite",
       },
+      boxShadow: {
+        brutal: "6px 6px 0 0 #C8102E",
+        "brutal-sm": "3px 3px 0 0 #C8102E",
+        "brutal-bone": "6px 6px 0 0 #ECE6D8",
+      },
       maxWidth: { site: "1280px" },
     },
   },

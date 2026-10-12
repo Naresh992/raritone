@@ -56,13 +56,16 @@ export function Marquee({ items, className, volt }: {
   );
 }
 
-/* SectionHead — giant Anton headline */
-export function SectionHead({ sticker, title, sub, light }: {
-  sticker: string; stickerColor?: string; title: React.ReactNode; sub?: string; light?: boolean;
+/* SectionHead — giant Anton headline with optional index */
+export function SectionHead({ sticker, title, sub, light, index }: {
+  sticker: string; stickerColor?: string; title: React.ReactNode; sub?: string; light?: boolean; index?: string;
 }) {
   return (
     <div className="max-w-[760px]">
-      <Sticker>{sticker}</Sticker>
+      <div className="flex items-center gap-3">
+        {index && <span className="font-display text-xl text-outline opacity-50 select-none">{index}</span>}
+        <Sticker>{sticker}</Sticker>
+      </div>
       <h2 className="font-display uppercase text-4xl lg:text-6xl leading-[0.92] mt-4 text-bone">{title}</h2>
       {sub && <p className="text-smoke leading-relaxed mt-3 max-w-[56ch]">{sub}</p>}
     </div>
@@ -78,8 +81,8 @@ export function PopButton({ children, color = "", href, onClick, className, smal
     "inline-flex items-center justify-center font-bold tracking-[0.18em] uppercase transition",
     small ? "h-10 px-5 text-[11px]" : "px-8 py-4 text-xs",
     ghost
-      ? "border border-bone/40 text-bone hover:border-blood hover:text-white"
-      : "bg-blood text-white hover:bg-blood-bright",
+      ? "border border-bone/40 text-bone hover:border-blood hover:text-white hover:shadow-brutal-sm hover:-translate-x-0.5 hover:-translate-y-0.5"
+      : "bg-blood text-white hover:bg-blood-bright shadow-brutal hover:-translate-x-0.5 hover:-translate-y-0.5",
     className,
   );
   if (href) return <Link href={href} className={cls}>{children}</Link>;

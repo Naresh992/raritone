@@ -45,6 +45,9 @@ export default function Home(){
             <div className="hidden lg:block absolute right-0 top-24">
               <Burst>100%<br/>live</Burst>
             </div>
+            <div className="hidden md:flex absolute -left-2 bottom-40 -rotate-6">
+              <Sticker color="bg-volt text-ink" rotate="">Wear it first</Sticker>
+            </div>
             <p className="text-smoke leading-relaxed mt-6 max-w-[48ch]">
               The camera-first try-on drop. Go live and see any outfit on you in
               realtime — or snap a photo look in seconds. Our catalog, or any
@@ -64,9 +67,9 @@ export default function Home(){
           </div>
 
           {/* lookbook collage */}
-          <div className="bg-coal border border-white/10 p-5">
+          <div className="bg-coal border border-white/10 p-5 hover:border-blood transition">
             <div className="flex items-center justify-between text-[10px] tracking-[0.22em] uppercase text-smoke pb-4 border-b border-white/10">
-              <span>Lookbook — Vol. 01</span><span className="text-blood">● Live</span>
+              <span>Lookbook — Vol. 01</span><span className="text-blood font-bold">● Live</span>
             </div>
             <div className="grid grid-cols-3 gap-3 pt-4">
               <div className="col-span-2 aspect-[4/5] bg-ash p-4 flex flex-col">
@@ -96,12 +99,12 @@ export default function Home(){
       {/* Categories */}
       <section className="max-w-[1280px] mx-auto px-4 lg:px-6 py-14">
         <div className="flex items-end justify-between gap-4">
-          <SectionHead sticker="The lineup" title="Shop by division" />
+          <SectionHead index="01" sticker="The lineup" title="Shop by division" />
           <Link href="/shop" className="text-sm text-bone link-underline shrink-0">Shop all →</Link>
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 mt-8">
           {CATS.map((c,i)=>(
-            <Link key={c.label} href={c.href} className="group relative bg-coal border border-white/10 hover:border-blood transition">
+            <Link key={c.label} href={c.href} className="group relative bg-coal border border-white/10 hover:border-blood hover:-translate-y-1 hover:shadow-brutal-sm transition">
               <span className="absolute left-2 top-2 z-10 font-display text-lg text-white/25">0{i+1}</span>
               {c.tag && (
                 <span className={`absolute right-2 top-2 z-10 text-[10px] font-bold tracking-[0.18em] uppercase px-2 py-0.5 rotate-3 ${c.tag==="New"||c.tag==="Drop" ? "bg-volt text-ink" : "bg-blood text-white"}`}>
@@ -121,7 +124,7 @@ export default function Home(){
       {/* Trending */}
       <section className="max-w-[1280px] mx-auto px-4 lg:px-6 pb-14">
         <div className="flex items-end justify-between gap-4">
-          <SectionHead sticker="Most wanted" title="Trending now" />
+          <SectionHead index="02" sticker="Most wanted" title="Trending now" />
           <Link href="/shop?trending=1" className="text-sm text-bone link-underline shrink-0">View all →</Link>
         </div>
         {trending.length ? (
@@ -141,7 +144,7 @@ export default function Home(){
       {/* Rules */}
       <section className="border-y border-white/10 bg-coal">
         <div className="max-w-[1280px] mx-auto px-4 lg:px-6 py-14">
-          <SectionHead sticker="Protocol" title="How it works"
+          <SectionHead index="03" sticker="Protocol" title="How it works"
             sub="No 3D avatars. No measuring tape. Just your camera and ruthless AI." />
           <div className="grid lg:grid-cols-3 gap-px bg-white/10 border border-white/10 mt-8">
             {[
@@ -149,8 +152,8 @@ export default function Home(){
               { n:"02", t:"Watch it bleed on", d:"The engine dresses you in seconds — realtime on live camera, moments on photo." },
               { n:"03", t:"Claim your look", d:"Save it to your calendar, keep the streak alive, buy only what hits on you." },
             ].map(s=>(
-              <div key={s.n} className="bg-coal p-8">
-                <div className="font-display text-5xl text-outline-red">{s.n}</div>
+              <div key={s.n} className="bg-coal p-8 group hover:bg-ash transition">
+                <div className="font-display text-5xl text-outline-red group-hover:text-blood transition">{s.n}</div>
                 <div className="font-display uppercase text-2xl mt-4">{s.t}</div>
                 <div className="text-sm text-smoke leading-relaxed mt-2">{s.d}</div>
               </div>

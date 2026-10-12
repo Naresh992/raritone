@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { Badge, Stars } from "./ui";
+import { Stars } from "./ui";
 import { ProductImage } from "./Garment";
 import { inr, cn } from "@/lib/format";
 import { useAuth, useCart, useToast, useTryOnModal, useWishlistIds } from "@/lib/store";
@@ -52,13 +52,13 @@ export function ProductCard({ product }: { product: Product }){
   return (
     <div className="group flex flex-col"
       onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)}>
-      <Link href={`/product/${product.slug}`} className="block relative aspect-[3/4] overflow-hidden bg-ash border border-white/10 group-hover:border-blood transition"
+      <Link href={`/product/${product.slug}`} className="block relative aspect-[3/4] overflow-hidden bg-ash border border-white/10 group-hover:border-blood group-hover:shadow-brutal-sm group-hover:-translate-y-1 transition"
         onClick={()=>track("product_viewed",{product_id:product.id})}>
         <ProductImage image={activeImg} alt={product.name} className="w-full h-full" />
         {/* badge */}
         {product.badge && (
-          <div className="absolute left-2 top-2">
-            <Badge tone={product.badge==="SALE"?"sale": product.badge==="NEW"?"new":"trending"}>{product.badge}</Badge>
+          <div className="absolute left-2 top-2 -rotate-3">
+            <span className={`inline-block px-2 py-0.5 text-[10px] font-bold tracking-widest uppercase ${product.badge==="NEW" ? "bg-volt text-ink" : "bg-blood text-white"}`}>{product.badge}</span>
           </div>
         )}
         {/* wishlist */}
