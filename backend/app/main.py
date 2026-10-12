@@ -1,4 +1,5 @@
 import logging
+import re
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -50,6 +51,15 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="Raritone API", version="1.0.0", lifespan=lifespan)
+
+
+@app.middleware("http")
+async def normalize_double_slash(request: Request, call_next):
+    # Tolerate base URLs configured with a trailing slash (e.g.
+    # https://api.example.com/ + /api/health -> //api/health).
+    if "//" in request.url.path:
+        request.scope["path"] = re.sub(r"/{2,}", "/", request.url.path)
+    return await call_next(request)
 
 app.add_middleware(
     CORSMiddleware,
