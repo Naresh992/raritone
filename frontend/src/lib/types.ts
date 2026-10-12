@@ -5,6 +5,7 @@ export type Product = {
   images: string[]; sizes: string[]; colors: { name: string; hex: string }[];
   rating: number; reviews: number; tags: string[]; fit: string; occasion: string[];
   featured: boolean; trending: boolean; badge: string | null; in_stock: boolean;
+  retailer: string; buy_url: string | null;
   created_at: string | null;
 };
 

@@ -66,6 +66,10 @@ class Product(Base):
     featured: Mapped[bool] = mapped_column(Boolean, default=False)
     trending: Mapped[bool] = mapped_column(Boolean, default=False)
     active: Mapped[bool] = mapped_column(Boolean, default=True)
+    # Retailer-sourced products: "" = Raritone catalog; else e.g. "Myntra" | "AJIO".
+    # Try on Raritone, buy on the retailer (deep link). Price shown as indicative MRP.
+    retailer: Mapped[str] = mapped_column(String(40), default="")
+    buy_url: Mapped[str | None] = mapped_column(Text, default=None)
     # Live VTO extensions (additive, nullable — see lifespan migration in main.py)
     vto_image: Mapped[str | None] = mapped_column(Text, default=None)
     vto_prompt: Mapped[str | None] = mapped_column(Text, default=None)

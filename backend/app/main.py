@@ -33,16 +33,21 @@ async def lifespan(app: FastAPI):
                 conn.execute(text("ALTER TABLE products ADD COLUMN vto_ready BOOLEAN DEFAULT 1"))
             if "vto_prompt_version" not in cols:
                 conn.execute(text("ALTER TABLE products ADD COLUMN vto_prompt_version INTEGER DEFAULT 1"))
+            if "retailer" not in cols:
+                conn.execute(text("ALTER TABLE products ADD COLUMN retailer VARCHAR(40) DEFAULT ''"))
+            if "buy_url" not in cols:
+                conn.execute(text("ALTER TABLE products ADD COLUMN buy_url TEXT"))
     except Exception:
         log.exception("Live VTO migration failed — continuing")
     # Auto-seed when empty + always ensure hidden system rows
     try:
-        from app.seed import ensure_streak_catalog, ensure_system_products, seed_if_empty
+        from app.seed import ensure_retailer_products, ensure_streak_catalog, ensure_system_products, seed_if_empty
         db = SessionLocal()
         try:
             seed_if_empty(db)
             ensure_system_products(db)
             ensure_streak_catalog(db)
+            ensure_retailer_products(db)
         finally:
             db.close()
     except Exception:

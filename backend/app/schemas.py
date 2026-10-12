@@ -100,6 +100,8 @@ class ProductOut(BaseModel):
     trending: bool = False
     badge: str | None = None
     in_stock: bool = True
+    retailer: str = ""
+    buy_url: str | None = None
     created_at: datetime | None = None
 
     model_config = {"from_attributes": True}

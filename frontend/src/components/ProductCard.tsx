@@ -70,19 +70,22 @@ export function ProductCard({ product }: { product: Product }){
         {/* quick actions — desktop hover */}
         <div className="hidden lg:flex absolute inset-x-2 bottom-2 gap-2 translate-y-1 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition">
           <button onClick={handleTryOn} className="flex-1 h-8 bg-blood text-white text-xs font-bold tracking-widest uppercase">Try On</button>
-          <button onClick={handleAdd} className="flex-1 h-8 bg-ink/80 text-bone border border-bone/30 text-xs font-bold tracking-widest uppercase">Add</button>
+          {!product.retailer && <button onClick={handleAdd} className="flex-1 h-8 bg-ink/80 text-bone border border-bone/30 text-xs font-bold tracking-widest uppercase">Add</button>}
         </div>
       </Link>
 
       <div className="pt-3 space-y-1">
-        <div className="text-[11px] tracking-widest uppercase text-smoke">{product.brand}</div>
+        <div className="text-[11px] tracking-widest uppercase text-smoke">
+          {product.brand}
+          {product.retailer ? <span className="text-volt"> · on {product.retailer}</span> : null}
+        </div>
         <Link href={`/product/${product.slug}`} className="block text-sm leading-tight text-bone hover:underline decoration-1 underline-offset-4 line-clamp-2">{product.name}</Link>
         <div className="flex items-center gap-2">
           <Stars value={product.rating} size={12} />
           <span className="text-xs text-smoke">({product.reviews})</span>
         </div>
         <div className="flex items-baseline gap-2">
-          <span className="text-sm font-semibold text-bone">{inr(product.effective_price)}</span>
+          <span className="text-sm font-semibold text-bone" title={product.retailer ? "Indicative MRP — confirm live price on retailer" : undefined}>{product.retailer ? "MRP " : ""}{inr(product.effective_price)}</span>
           {product.sale_price && <span className="text-xs line-through text-smoke">{inr(product.price)}</span>}
           {product.discount_percent > 0 && <span className="text-xs font-bold text-blood-bright">{product.discount_percent}% off</span>}
         </div>
@@ -92,7 +95,7 @@ export function ProductCard({ product }: { product: Product }){
         {/* mobile actions */}
         <div className="flex lg:hidden gap-2 pt-2">
           <button onClick={handleTryOn} className="flex-1 h-8 bg-blood text-white text-xs font-bold tracking-widest uppercase">Try On</button>
-          <button onClick={handleAdd} className="flex-1 h-8 bg-transparent border border-bone/30 text-bone text-xs font-bold tracking-widest uppercase">Add</button>
+          {!product.retailer && <button onClick={handleAdd} className="flex-1 h-8 bg-transparent border border-bone/30 text-bone text-xs font-bold tracking-widest uppercase">Add</button>}
         </div>
       </div>
     </div>

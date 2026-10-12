@@ -386,3 +386,103 @@ def ensure_streak_catalog(db: Session):
             camp.terms = _REWARD_TERMS
     db.commit()
     print("Ensured Style Streak catalog (plans + campaigns)")
+
+
+# ── Retailer products (real brands, try on Raritone, buy on Myntra/AJIO) ──
+# buy_url uses verified-stable retailer search/category URL patterns:
+#   Myntra: /men-tshirts, /nike-tshirts, /nike + ?rawQuery= (verified resolving)
+#   AJIO:   /search/?text=<exact product name> (verified resolving)
+# Prices are indicative MRPs — UI labels them MRP* with a live-price CTA.
+
+RETAILER_PRODUCTS = [
+    {"name": "Roadster Men White Pure Cotton T-shirt", "brand": "Roadster", "category": "t-shirts", "gender": "men",
+     "kind": "tee", "price": 999, "colors": [("White", "#F7F5F2")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.3, "reviews": 5214, "fit": "regular", "occasion": ["casual"],
+     "retailer": "Myntra", "buy_url": "https://www.myntra.com/men-tshirts?rawQuery=roadster%20white%20pure%20cotton%20t-shirt",
+     "description": "Myntra bestseller. Pure-cotton white tee — try it on Raritone, buy it on Myntra.", "trending": True},
+    {"name": "HRX by Hrithik Roshan Men Yellow Printed Cotton T-shirt", "brand": "HRX", "category": "t-shirts", "gender": "men",
+     "kind": "tee", "price": 999, "colors": [("Yellow", "#EAB308")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.4, "reviews": 3102, "fit": "regular", "occasion": ["casual", "streetwear"],
+     "retailer": "Myntra", "buy_url": "https://www.myntra.com/men-tshirts?rawQuery=hrx%20yellow%20printed%20cotton%20t-shirt",
+     "description": "HRX statement active tee — try it on Raritone, buy it on Myntra.", "trending": True},
+    {"name": "GAS Men Black Printed Round Neck T-shirt", "brand": "GAS", "category": "t-shirts", "gender": "men",
+     "kind": "tee", "price": 1299, "colors": [("Black", "#111111")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.5, "reviews": 1187, "fit": "regular", "occasion": ["casual"],
+     "retailer": "Myntra", "buy_url": "https://www.myntra.com/men-tshirts?rawQuery=gas%20black%20printed%20round%20neck%20t-shirt",
+     "description": "Rocker-chic graphic tee — try it on Raritone, buy it on Myntra."},
+    {"name": "Nike Men Blue Dri-FIT Polo T-shirt", "brand": "Nike", "category": "t-shirts", "gender": "men",
+     "kind": "tee", "price": 1995, "colors": [("Blue", "#1E3A8A")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.6, "reviews": 2408, "fit": "regular", "occasion": ["casual", "sports"],
+     "retailer": "Myntra", "buy_url": "https://www.myntra.com/nike-tshirts?rawQuery=nike%20blue%20polo%20t-shirt",
+     "description": "Lightweight Dri-FIT polo — try it on Raritone, buy it on Myntra.", "featured": True},
+    {"name": "Van Heusen Men Slim-Fit Casual Shirt", "brand": "Van Heusen", "category": "shirts", "gender": "men",
+     "kind": "shirt", "price": 2499, "colors": [("White", "#F7F5F2"), ("Blue", "#1E3A8A")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.5, "reviews": 1876, "fit": "slim", "occasion": ["smart-casual", "formal"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=van%20heusen%20men%20slim%20fit%20casual%20shirt",
+     "description": "Sharp slim-fit casual shirt — try it on Raritone, buy it on AJIO."},
+    {"name": "Allen Solly Men Checked Casual Shirt", "brand": "Allen Solly", "category": "shirts", "gender": "men",
+     "kind": "shirt", "price": 2299, "colors": [("Navy", "#1E293B"), ("Red", "#991B1B")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.4, "reviews": 1543, "fit": "regular", "occasion": ["casual"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=allen%20solly%20men%20checked%20casual%20shirt",
+     "description": "Classic checked casual shirt — try it on Raritone, buy it on AJIO."},
+    {"name": "Adidas Men Fleece Hoodie", "brand": "Adidas", "category": "hoodies", "gender": "men",
+     "kind": "hoodie", "price": 3599, "colors": [("Black", "#111111"), ("Grey", "#6B7280")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.6, "reviews": 2210, "fit": "regular", "occasion": ["casual", "streetwear"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=adidas%20men%20fleece%20hoodie",
+     "description": "Cosy fleece hoodie — try it on Raritone, buy it on AJIO.", "trending": True},
+    {"name": "Puma Men Solid Hoodie", "brand": "Puma", "category": "hoodies", "gender": "men",
+     "kind": "hoodie", "price": 2999, "colors": [("Navy", "#1E293B")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.5, "reviews": 1320, "fit": "regular", "occasion": ["casual"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=puma%20men%20solid%20hoodie",
+     "description": "Everyday solid hoodie — try it on Raritone, buy it on AJIO."},
+    {"name": "Nike Men Woven Jacket", "brand": "Nike", "category": "jackets", "gender": "men",
+     "kind": "jacket", "price": 4995, "colors": [("Black", "#111111")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.7, "reviews": 986, "fit": "regular", "occasion": ["sports", "casual"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=nike%20men%20woven%20jacket",
+     "description": "Lightweight woven jacket — try it on Raritone, buy it on AJIO.", "featured": True},
+    {"name": "Adidas Men Firebird Track Jacket", "brand": "Adidas", "category": "jackets", "gender": "men",
+     "kind": "jacket", "price": 5999, "colors": [("Navy", "#1E293B"), ("Black", "#111111")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.8, "reviews": 1754, "fit": "regular", "occasion": ["sports", "streetwear"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=adidas%20men%20firebird%20track%20jacket",
+     "description": "The iconic Firebird — try it on Raritone, buy it on AJIO.", "trending": True},
+    {"name": "ONLY Women Ribbed Top", "brand": "ONLY", "category": "tops", "gender": "women",
+     "kind": "top", "price": 1299, "colors": [("Black", "#111111"), ("White", "#F7F5F2")], "sizes": ["XS", "S", "M", "L"],
+     "rating": 4.4, "reviews": 2087, "fit": "slim", "occasion": ["casual"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=only%20women%20ribbed%20top",
+     "description": "Fitted ribbed top — try it on Raritone, buy it on AJIO."},
+    {"name": "Vero Moda Women Floral Midi Dress", "brand": "Vero Moda", "category": "dresses", "gender": "women",
+     "kind": "dress", "price": 2999, "colors": [("Floral", "#9CAF88")], "sizes": ["XS", "S", "M", "L"],
+     "rating": 4.5, "reviews": 1432, "fit": "regular", "occasion": ["casual", "resort"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=vero%20moda%20women%20floral%20midi%20dress",
+     "description": "Breezy floral midi — try it on Raritone, buy it on AJIO.", "featured": True},
+]
+
+
+def ensure_retailer_products(db: Session):
+    """Idempotent insert of real-brand retailer products (skip existing slugs)."""
+    added = 0
+    for p in RETAILER_PRODUCTS:
+        slug = _slug(p["name"])
+        if db.query(Product).filter(Product.slug == slug).first():
+            continue
+        colors = [{"name": n, "hex": h} for n, h in p["colors"]]
+        images = [f"g:{p['kind']}:{colors[0]['hex']}:front", f"g:{p['kind']}:{colors[0]['hex']}:back"]
+        prod = Product(
+            slug=slug,
+            sku=f"RTL-{uuid.uuid4().hex[:8].upper()}",
+            name=p["name"], brand=p["brand"], description=p["description"],
+            category=p["category"], gender=p["gender"],
+            price=p["price"], sale_price=None, images=images,
+            sizes=p["sizes"], colors=colors, inventory={s: 40 for s in p["sizes"]},
+            rating=p["rating"], reviews=p["reviews"],
+            tags=[p["category"], p["gender"], "retailer", p["retailer"].lower(), p["brand"].lower()],
+            fit=p.get("fit", "regular"), occasion=p.get("occasion", []),
+            featured=bool(p.get("featured")), trending=bool(p.get("trending")),
+            retailer=p["retailer"], buy_url=p["buy_url"],
+            vto_ready=True,
+        )
+        db.add(prod)
+        added += 1
+    if added:
+        db.commit()
+    print(f"Ensured retailer products ({added} new)")

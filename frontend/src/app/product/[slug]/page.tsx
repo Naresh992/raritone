@@ -74,16 +74,32 @@ export default function ProductPage(){
         {/* details */}
         <div>
           <div className="text-xs tracking-widest uppercase text-smoke">{product.brand}</div>
+          {product.retailer ? (
+            <div className="mt-2 flex items-center gap-2">
+              <span className="bg-volt text-ink text-[10px] font-bold tracking-[0.18em] uppercase px-2 py-1 -rotate-2">Sold on {product.retailer}</span>
+              <span className="text-[11px] text-smoke">Try it here · buy it there</span>
+            </div>
+          ) : null}
           <h1 className="font-display uppercase text-3xl lg:text-4xl leading-[0.95] mt-2">{product.name}</h1>
           <div className="flex items-center gap-2 mt-2">
             <Stars value={product.rating} /><span className="text-sm text-smoke">({product.reviews} reviews)</span>
           </div>
 
           <div className="flex items-baseline gap-3 mt-4">
-            <span className="font-display text-3xl">{inr(product.effective_price)}</span>
+            <span className="font-display text-3xl">{product.retailer ? "MRP " : ""}{inr(product.effective_price)}</span>
             {product.sale_price && <><span className="line-through text-smoke">{inr(product.price)}</span><span className="text-sm font-bold text-blood-bright bg-blood-dark border border-blood px-2 py-0.5 -rotate-2">{product.discount_percent}% off</span></>}
           </div>
-          <div className="text-xs text-smoke mt-1">Inclusive of taxes · Free shipping over ₹1,999</div>
+          <div className="text-xs text-smoke mt-1">
+            {product.retailer
+              ? <>*Indicative MRP — confirm the live price on {product.retailer}.</>
+              : <>Inclusive of taxes · Free shipping over ₹1,999</>}
+          </div>
+          {product.retailer && product.buy_url && (
+            <a href={product.buy_url} target="_blank" rel="noopener noreferrer sponsored"
+              className="mt-4 flex items-center justify-center gap-2 py-4 bg-volt text-ink text-sm font-bold tracking-[0.16em] uppercase hover:brightness-110 transition shadow-brutal">
+              Buy on {product.retailer} →
+            </a>
+          )}
 
           {/* try-on CTAs */}
           <div className="mt-6 border border-blood bg-blood-dark/40 p-4">
@@ -123,7 +139,8 @@ export default function ProductPage(){
             </div>
           </div>
 
-          {/* qty + actions */}
+          {/* qty + actions (Raritone catalog only — retailer items sell on the retailer) */}
+          {!product.retailer && (
           <div className="mt-6 flex items-center gap-3">
             <div className="flex items-center border border-white/20">
               <button onClick={()=>setQty(q=>Math.max(1,q-1))} className="w-9 h-9 grid place-items-center">−</button>
@@ -132,7 +149,8 @@ export default function ProductPage(){
             </div>
             <Button className="flex-1" onClick={handleAdd}>Add to Cart</Button>
           </div>
-          <Button variant="clay" className="w-full mt-3" onClick={()=>{ handleAdd(); window.location.href="/cart"; }}>Buy Now</Button>
+          )}
+          {!product.retailer && <Button variant="clay" className="w-full mt-3" onClick={()=>{ handleAdd(); window.location.href="/cart"; }}>Buy Now</Button>}
           <button onClick={async ()=>{
             if(!product) return;
             const wl = useWishlistIds.getState();
