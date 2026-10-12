@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+  body { width: 300px; margin: 0; padding: 16px; font-family: system-ui, sans-serif; color: #111; }
+  h1 { font-size: 14px; letter-spacing: 0.18em; margin: 0 0 2px; }
+  .sub { font-size: 11px; color: #78716c; margin-bottom: 12px; }
+  label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; margin: 10px 0 4px; color: #57534e; }
+  input { width: 100%; box-sizing: border-box; height: 32px; border: 1px solid #d6d3d1; padding: 0 8px; font-size: 13px; }
+  button { width: 100%; height: 34px; margin-top: 10px; border: none; cursor: pointer; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
+  .primary { background: #111; color: #fff; }
+  .clay { background: #b4532a; color: #fff; }
+  .ghost { background: #fff; color: #111; border: 1px solid #d6d3d1; }
+  .row { display: flex; gap: 8px; } .row button { flex: 1; }
+  #msg { font-size: 12px; margin-top: 8px; min-height: 16px; } .err { color: #b91c1c; } .ok { color: #15803d; }
+  #status { font-size: 12px; background: #f5f5f4; padding: 8px; margin-top: 8px; }
+  details { margin-top: 10px; font-size: 12px; color: #57534e; }
+  details input { height: 28px; font-size: 12px; }
+</style>
+</head>
+<body>
+  <h1>RARITONE</h1>
+  <div class="sub">Live try-on for any site. Point, try, snap.</div>
+
+  <div id="loginView">
+    <label>Email</label><input id="email" type="email" placeholder="you@example.com" />
+    <label>Password</label><input id="password" type="password" placeholder="••••••••" />
+    <button class="primary" id="loginBtn">Sign in</button>
+    <div class="sub" style="margin-top:8px">Demo: demo@raritone.com / demo1234</div>
+  </div>
+
+  <div id="appView" style="display:none">
+    <div id="status"></div>
+    <label>Garment image URL (https)</label><input id="imgUrl" placeholder="https://…/dress.jpg" />
+    <button class="clay" id="tryBtn">Open Live Try-On</button>
+    <div class="row">
+      <button class="ghost" id="looksBtn">My Looks</button>
+      <button class="ghost" id="logoutBtn">Sign out</button>
+    </div>
+    <div class="sub" style="margin-top:8px">Tip: hover any product photo on any site and hit ✨ Try On.</div>
+  </div>
+
+  <div id="msg"></div>
+
+  <details>
+    <summary>Settings</summary>
+    <label>API base</label><input id="apiBase" />
+    <label>Site base</label><input id="siteBase" />
+    <button class="ghost" id="saveBtn">Save</button>
+  </details>
+
+<script src="popup.js"></script>
+</body>
+</html>

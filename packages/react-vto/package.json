@@ -1,0 +1,47 @@
+{
+  "name": "@raritone/react-vto",
+  "version": "0.1.0",
+  "description": "React bindings for Raritone live virtual try-on",
+  "license": "UNLICENSED",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "clean": "rimraf dist",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@raritone/live-vto-sdk": "file:../live-vto-sdk",
+    "@raritone/vto-core": "file:../vto-core"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "react": "^18.3.1",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.5.4",
+    "vitest": "^1.6.0"
+  },
+  "keywords": [
+    "raritone",
+    "vto",
+    "react",
+    "virtual-try-on"
+  ]
+}

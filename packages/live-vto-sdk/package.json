@@ -1,0 +1,55 @@
+{
+  "name": "@raritone/live-vto-sdk",
+  "version": "0.1.0",
+  "description": "Raritone Live Virtual Try-On SDK — realtime camera VTO with provider abstraction",
+  "license": "UNLICENSED",
+  "private": false,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "vitest run",
+    "lint": "tsc --noEmit",
+    "clean": "rimraf dist"
+  },
+  "peerDependencies": {
+    "@decartai/sdk": ">=0.2.0"
+  },
+  "peerDependenciesMeta": {
+    "@decartai/sdk": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "@raritone/vto-core": "file:../vto-core"
+  },
+  "devDependencies": {
+    "@decartai/sdk": "^0.2.1",
+    "@types/react": "^18.3.5",
+    "react": "^18.3.1",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.5.4",
+    "vitest": "^1.6.0"
+  },
+  "keywords": [
+    "vto",
+    "virtual-try-on",
+    "webrtc",
+    "livekit",
+    "raritone",
+    "fashion"
+  ]
+}

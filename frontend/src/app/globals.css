@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+html { scroll-behavior: smooth; }
+body { @apply bg-ink text-bone font-sans antialiased; }
+
+::selection { background: #C8102E; color: #fff; }
+
+/* hairline borders + focus rings */
+* { @apply border-white/10; }
+:focus-visible { @apply outline-none ring-2 ring-blood ring-offset-2 ring-offset-ink; }
+
+/* hide scrollbar but keep scroll */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* editorial underline */
+.link-underline { text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.link-underline:hover { text-decoration-line: underline; }
+
+/* shimmer skeletons */
+@keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+.shimmer { position: relative; overflow: hidden; background: #1E1E21; }
+.shimmer::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  animation: shimmer 1.4s infinite;
+}
+
+/* outlined ghost type */
+.text-outline {
+  -webkit-text-stroke: 1.5px #ECE6D8;
+  color: transparent;
+}
+.text-outline-red {
+  -webkit-text-stroke: 1.5px #C8102E;
+  color: transparent;
+}
