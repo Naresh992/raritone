@@ -1,4 +1,6 @@
-const API = process.env.NEXT_PUBLIC_API_URL || "";
+// Keep the storefront connected to the production catalog even when a deployment
+// was built before Vercel's NEXT_PUBLIC_API_URL variable was configured.
+const API = (process.env.NEXT_PUBLIC_API_URL || "https://raritone.onrender.com").replace(/\/$/, "");
 function base(){ return API ? API.replace(/\/$/,"") : ""; }
 
 function authHeader(): Record<string,string> {
