@@ -2,7 +2,7 @@
 const nextConfig = {
   images: { unoptimized: true },
   async rewrites() {
-    const api = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000").replace(/\/+$/, "");
+    const api = (process.env.NEXT_PUBLIC_API_URL || "https://raritone.onrender.com").replace(/\/+$/, "");
     return [{ source: "/api/:path*", destination: `${api}/api/:path*` }];
   },
 };
