@@ -14,6 +14,10 @@ EXPECTED_SLUGS = {
     "nike-men-woven-jacket",
     "only-women-ribbed-top",
     "vero-moda-women-floral-midi-dress",
+    "puma-men-solid-t-shirt",
+    "levis-men-trucker-jacket",
+    "only-women-floral-summer-dress",
+    "roadster-men-black-pure-cotton-t-shirt",
 }
 
 
@@ -22,6 +26,8 @@ def test_retailer_products_seeded(client):
     assert r.status_code == 200, r.text
     products = {p["slug"]: p for p in r.json()["products"]}
     assert EXPECTED_SLUGS <= set(products), f"missing: {EXPECTED_SLUGS - set(products)}"
+    retail = [p for p in r.json()["products"] if p.get("retailer")]
+    assert len(retail) == 24, f"expected 24 retailer products, got {len(retail)}"
     for slug in EXPECTED_SLUGS:
         p = products[slug]
         assert p["retailer"] in ("Myntra", "AJIO"), slug

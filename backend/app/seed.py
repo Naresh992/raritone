@@ -458,10 +458,74 @@ RETAILER_PRODUCTS = [
 ]
 
 
+RETAILER_PRODUCTS_2 = [
+    {"name": "Puma Men Solid T-shirt", "brand": "Puma", "category": "t-shirts", "gender": "men",
+     "kind": "tee", "price": 999, "colors": [("Black", "#111111")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.4, "reviews": 2871, "fit": "regular", "occasion": ["casual"],
+     "retailer": "Myntra", "buy_url": "https://www.myntra.com/men-tshirts?rawQuery=puma%20men%20solid%20t-shirt",
+     "description": "Essential solid tee — try it on Raritone, buy it on Myntra.", "trending": True},
+    {"name": "Adidas Men 3-Stripes Tee", "brand": "Adidas", "category": "t-shirts", "gender": "men",
+     "kind": "tee", "price": 1499, "colors": [("White", "#F7F5F2")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.5, "reviews": 1934, "fit": "regular", "occasion": ["casual", "sports"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=adidas%20men%203%20stripes%20tee",
+     "description": "Classic 3-stripes tee — try it on Raritone, buy it on AJIO."},
+    {"name": "HRX by Hrithik Roshan Men Olive Bio-Wash Running T-shirt", "brand": "HRX", "category": "t-shirts", "gender": "men",
+     "kind": "tee", "price": 999, "colors": [("Olive", "#6B705C")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.3, "reviews": 4210, "fit": "regular", "occasion": ["sports", "casual"],
+     "retailer": "Myntra", "buy_url": "https://www.myntra.com/men-tshirts?rawQuery=hrx%20olive%20bio-wash%20running%20t-shirt",
+     "description": "Bio-wash running tee — try it on Raritone, buy it on Myntra."},
+    {"name": "U.S. Polo Assn. Men Pique Polo T-shirt", "brand": "U.S. Polo Assn.", "category": "t-shirts", "gender": "men",
+     "kind": "tee", "price": 1999, "colors": [("Navy", "#1E293B")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.4, "reviews": 1765, "fit": "regular", "occasion": ["smart-casual"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=u.s.%20polo%20assn.%20men%20pique%20polo%20t-shirt",
+     "description": "Preppy pique polo — try it on Raritone, buy it on AJIO."},
+    {"name": "Louis Philippe Men Slim Formal Shirt", "brand": "Louis Philippe", "category": "shirts", "gender": "men",
+     "kind": "shirt", "price": 2999, "colors": [("White", "#F7F5F2"), ("Blue", "#1E3A8A")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.6, "reviews": 1298, "fit": "slim", "occasion": ["formal"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=louis%20philippe%20men%20slim%20formal%20shirt",
+     "description": "Boardroom-ready slim shirt — try it on Raritone, buy it on AJIO.", "featured": True},
+    {"name": "Levis Men Hooded Sweatshirt", "brand": "Levi's", "category": "hoodies", "gender": "men",
+     "kind": "hoodie", "price": 2999, "colors": [("Red", "#991B1B")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.5, "reviews": 1104, "fit": "regular", "occasion": ["casual", "streetwear"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=levis%20men%20hooded%20sweatshirt",
+     "description": "Iconic batwing hoodie — try it on Raritone, buy it on AJIO.", "trending": True},
+    {"name": "Levis Men Trucker Jacket", "brand": "Levi's", "category": "jackets", "gender": "men",
+     "kind": "jacket", "price": 3999, "colors": [("Blue", "#243447")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.7, "reviews": 1689, "fit": "regular", "occasion": ["casual", "streetwear"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=levis%20men%20trucker%20jacket",
+     "description": "The original trucker — try it on Raritone, buy it on AJIO.", "featured": True},
+    {"name": "Flying Machine Women Crop Top", "brand": "Flying Machine", "category": "tops", "gender": "women",
+     "kind": "top", "price": 1299, "colors": [("Black", "#111111")], "sizes": ["XS", "S", "M", "L"],
+     "rating": 4.3, "reviews": 987, "fit": "cropped", "occasion": ["casual", "streetwear"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=flying%20machine%20women%20crop%20top",
+     "description": "Street-ready crop top — try it on Raritone, buy it on AJIO."},
+    {"name": "ONLY Women Floral Summer Dress", "brand": "ONLY", "category": "dresses", "gender": "women",
+     "kind": "dress", "price": 2299, "colors": [("Floral", "#C45A2E")], "sizes": ["XS", "S", "M", "L"],
+     "rating": 4.4, "reviews": 1211, "fit": "regular", "occasion": ["casual", "resort"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=only%20women%20floral%20summer%20dress",
+     "description": "Sun-ready floral dress — try it on Raritone, buy it on AJIO.", "trending": True},
+    {"name": "Roadster Men Black Pure Cotton T-shirt", "brand": "Roadster", "category": "t-shirts", "gender": "men",
+     "kind": "tee", "price": 999, "colors": [("Black", "#111111")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.3, "reviews": 6102, "fit": "regular", "occasion": ["casual"],
+     "retailer": "Myntra", "buy_url": "https://www.myntra.com/men-tshirts?rawQuery=roadster%20black%20pure%20cotton%20t-shirt",
+     "description": "Myntra bestseller in black — try it on Raritone, buy it on Myntra."},
+    {"name": "Nike Men Dri-FIT Training T-shirt", "brand": "Nike", "category": "t-shirts", "gender": "men",
+     "kind": "tee", "price": 1695, "colors": [("Grey", "#6B7280")], "sizes": ["S", "M", "L", "XL"],
+     "rating": 4.6, "reviews": 2755, "fit": "regular", "occasion": ["sports"],
+     "retailer": "Myntra", "buy_url": "https://www.myntra.com/nike-tshirts?rawQuery=nike%20dri-fit%20training%20t-shirt",
+     "description": "Sweat-wicking training tee — try it on Raritone, buy it on Myntra."},
+    {"name": "Puma Women Graphic T-shirt", "brand": "Puma", "category": "t-shirts", "gender": "women",
+     "kind": "tee", "price": 1299, "colors": [("White", "#F7F5F2")], "sizes": ["XS", "S", "M", "L"],
+     "rating": 4.4, "reviews": 1544, "fit": "regular", "occasion": ["casual", "sports"],
+     "retailer": "AJIO", "buy_url": "https://www.ajio.com/search/?text=puma%20women%20graphic%20t-shirt",
+     "description": "Graphic tee with edge — try it on Raritone, buy it on AJIO."},
+]
+
+
 def ensure_retailer_products(db: Session):
     """Idempotent insert of real-brand retailer products (skip existing slugs)."""
     added = 0
-    for p in RETAILER_PRODUCTS:
+    for p in RETAILER_PRODUCTS + RETAILER_PRODUCTS_2:
         slug = _slug(p["name"])
         if db.query(Product).filter(Product.slug == slug).first():
             continue

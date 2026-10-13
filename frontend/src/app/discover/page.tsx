@@ -19,6 +19,13 @@ export default function DiscoverPage() {
         .then((d: any) => setRows((r) => ({ ...r, [s.label]: d.products || [] })))
         .catch(() => {});
     });
+    // Retailer picks: filter the full catalog client-side (no dedicated endpoint needed)
+    Api.products("?limit=200")
+      .then((d: any) => setRows((r) => ({
+        ...r,
+        "From Myntra & AJIO": (d.products || []).filter((p: Product) => p.retailer).slice(0, 8),
+      })))
+      .catch(() => {});
   }, []);
 
   return (
@@ -38,6 +45,20 @@ export default function DiscoverPage() {
       <Marquee volt items={["New heat weekly", "Try before you buy", "Restocks drop Fridays", "Streak = rewards"]} />
     </div>
     <div className="max-w-[1280px] mx-auto px-4 lg:px-6">
+
+      <section className="mt-10">
+        <div className="flex items-center justify-between">
+          <Sticker rotate="rotate-1" color="bg-volt text-ink">From Myntra & AJIO</Sticker>
+          <Link href="/shop" className="text-sm font-bold underline underline-offset-4">View all →</Link>
+        </div>
+        {(rows["From Myntra & AJIO"] || []).length ? (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mt-5">
+            {(rows["From Myntra & AJIO"] || []).map((p) => <ProductCard key={p.id} product={p} />)}
+          </div>
+        ) : (
+          <div className="mt-5 text-sm text-smoke">Loading…</div>
+        )}
+      </section>
 
       {STRIPS.map((s) => (
         <section key={s.label} className="mt-10">
