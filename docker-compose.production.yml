@@ -1,0 +1,63 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-raritone}
+      POSTGRES_USER: ${POSTGRES_USER:-raritone}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes: [postgres_data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-raritone} -d ${POSTGRES_DB:-raritone}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [private]
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["sh", "-c", "exec redis-server --appendonly yes --requirepass \"$$REDIS_PASSWORD\""]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env}
+    volumes: [redis_data:/data]
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [private]
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-raritone}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-raritone}
+      REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379/0
+      APP_ENV: production
+      AUTO_CREATE_SCHEMA: "false"
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    ports: ["127.0.0.1:8000:8000"]
+    volumes: [private_uploads:/app/data]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health/ready', timeout=3)"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+    networks: [private]
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    env_file: ./frontend/.env.local
+    depends_on:
+      backend: {condition: service_healthy}
+    ports: ["127.0.0.1:3000:3000"]
+    networks: [private]
+volumes:
+  postgres_data:
+  redis_data:
+  private_uploads:
+networks:
+  private:
+    driver: bridge
