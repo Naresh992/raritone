@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy import text
 
 from app.config import get_settings
 from app.database import Base, SessionLocal, engine
@@ -17,64 +18,75 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s %(message
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    Base.metadata.create_all(bind=engine)
-    # Lightweight migration: add Live VTO columns if missing (SQLite additive)
-    try:
-        from sqlalchemy import text
-        with engine.begin() as conn:
-            # Check products table for vto columns
-            rows = conn.execute(text("PRAGMA table_info(products)")).fetchall()
-            cols = {r[1] for r in rows}
-            if "vto_image" not in cols:
-                conn.execute(text("ALTER TABLE products ADD COLUMN vto_image TEXT"))
-            if "vto_prompt" not in cols:
-                conn.execute(text("ALTER TABLE products ADD COLUMN vto_prompt TEXT"))
-            if "vto_ready" not in cols:
-                conn.execute(text("ALTER TABLE products ADD COLUMN vto_ready BOOLEAN DEFAULT 1"))
-            if "vto_prompt_version" not in cols:
-                conn.execute(text("ALTER TABLE products ADD COLUMN vto_prompt_version INTEGER DEFAULT 1"))
-            if "retailer" not in cols:
-                conn.execute(text("ALTER TABLE products ADD COLUMN retailer VARCHAR(40) DEFAULT ''"))
-            if "buy_url" not in cols:
-                conn.execute(text("ALTER TABLE products ADD COLUMN buy_url TEXT"))
-    except Exception:
-        log.exception("Live VTO migration failed — continuing")
-    # Auto-seed when empty + always ensure hidden system rows
-    try:
-        from app.seed import ensure_retailer_products, ensure_streak_catalog, ensure_system_products, seed_if_empty
-        db = SessionLocal()
+    # Production must be configured explicitly; never boot with demo secrets,
+    # SQLite, mock inference, or process-local rate limits.
+    settings.validate_production()
+    if settings.is_production:
+        from app.rate_limit import check_redis_connection
+        check_redis_connection()
+
+    if settings.auto_create_schema:
+        Base.metadata.create_all(bind=engine)
+    else:
+        log.info("AUTO_CREATE_SCHEMA=false; schema must be provisioned by the deployment migration job")
+    if settings.auto_create_schema:
+        # Lightweight additive compatibility migration for existing databases.
+        # Use dialect-aware inspection (the previous PRAGMA-only migration silently
+        # skipped PostgreSQL, leaving existing product tables without these fields).
         try:
-            seed_if_empty(db)
-            ensure_system_products(db)
-            ensure_streak_catalog(db)
-            ensure_retailer_products(db)
-        finally:
-            db.close()
-    except Exception:
-        log.exception("Seed failed — continuing anyway")
+            from sqlalchemy import inspect
+            columns = {column["name"] for column in inspect(engine).get_columns("products")}
+            additions = {
+                "vto_image": "TEXT",
+                "vto_prompt": "TEXT",
+                "vto_ready": "BOOLEAN DEFAULT TRUE",
+                "vto_prompt_version": "INTEGER DEFAULT 1",
+                "retailer": "VARCHAR(40) DEFAULT ''",
+                "buy_url": "TEXT",
+            }
+            with engine.begin() as conn:
+                for name, sql_type in additions.items():
+                    if name not in columns:
+                        conn.execute(text(f"ALTER TABLE products ADD COLUMN {name} {sql_type}"))
+        except Exception:
+            log.exception("Additive product compatibility migration failed")
+            if settings.is_production:
+                raise
+    
+    if not settings.is_production:
+        try:
+            from app.seed import ensure_retailer_products, ensure_streak_catalog, ensure_system_products, seed_if_empty
+            db = SessionLocal()
+            try:
+                seed_if_empty(db)
+                ensure_system_products(db)
+                ensure_streak_catalog(db)
+                ensure_retailer_products(db)
+            finally:
+                db.close()
+        except Exception:
+            log.exception("Development seed failed")
+            raise
     yield
 
 
-app = FastAPI(title="Raritone API", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="Raritone API", version="1.1.0", lifespan=lifespan)
 
 
 @app.middleware("http")
 async def normalize_double_slash(request: Request, call_next):
-    # Tolerate base URLs configured with a trailing slash (e.g.
-    # https://api.example.com/ + /api/health -> //api/health).
     if "//" in request.url.path:
         request.scope["path"] = re.sub(r"/{2,}", "/", request.url.path)
     return await call_next(request)
 
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origin_list + ["*"] if not settings.is_production else settings.cors_origin_list,
-    # Browser-extension origins (chrome-extension://<id>) are always allowed:
-    # extension fetches still require a user Bearer token.
-    allow_origin_regex=r"chrome-extension://.*",
+    allow_origins=settings.cors_origin_list,
+    allow_origin_regex=settings.cors_origin_regex or None,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Session-Id", "X-Request-Id"],
 )
 
 
@@ -100,6 +112,21 @@ def health():
     return {"status": "ok", "env": settings.app_env}
 
 
+@app.get("/api/health/ready")
+def readiness():
+    """Readiness probe: checks the configured database and production Redis."""
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        if settings.is_production:
+            from app.rate_limit import check_redis_connection
+            check_redis_connection()
+    except Exception:
+        log.exception("Readiness check failed")
+        return JSONResponse(status_code=503, content={"status": "not_ready"})
+    return {"status": "ready", "env": settings.app_env}
+
+
 @app.get("/api/config")
 def public_config():
     """Safe public config consumed by the frontend (no secrets)."""
@@ -118,7 +145,6 @@ def public_config():
 
 @app.exception_handler(Exception)
 async def unhandled(request: Request, exc: Exception):
-    # Hide internals in production; log everything
     log.exception("Unhandled error at %s %s", request.method, request.url.path)
     if settings.is_production:
         return JSONResponse(status_code=500, content={"detail": "Something went wrong. Please try again."})
