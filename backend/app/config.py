@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     app_env: str = "development"
     app_name: str = "Raritone"
     database_url: str = "sqlite:///./raritone.db"
+    redis_url: str = ""
     cors_origins: str = "http://localhost:3000"
 
     jwt_secret: str = "dev-secret-change-me"
@@ -51,34 +52,57 @@ class Settings(BaseSettings):
     rate_limit_auth_per_minute: int = 10
     rate_limit_tryon_per_hour: int = 30
 
-    # Live VTO (realtime) — verified against Decart docs (docs.platform.decart.ai)
-    # Official flow: backend mints short-lived Decart *client tokens*
-    # (POST {DECART_API_BASE}/v1/client/tokens, header x-api-key) and the
-    # browser connects with @decartai/sdk using that token. Decart's gateway
-    # owns the LiveKit room — we never mint LiveKit JWTs ourselves for decart.
-    live_vto_provider: str = "mock"  # mock | decart | raritone
-    live_vto_mock_enabled: bool = True  # dev/tests only; never present mock as real AI
-    decart_api_key: str = ""  # permanent key dct_* — server-only, never sent to client
+    # Live VTO (realtime)
+    live_vto_provider: str = "mock"
+    live_vto_mock_enabled: bool = True
+    decart_api_key: str = ""
     decart_api_base: str = "https://api.decart.ai"
-    decart_model_id: str = "lucy-vton-latest"  # verified: models.realtime("lucy-vton-latest")
-    decart_allowed_origins: str = ""  # comma-separated canonical origins, e.g. https://shop.raritone.com
-    livekit_url: str = ""  # LEGACY: only for self-hosted LiveKit experiments, not decart
+    decart_model_id: str = "lucy-vton-latest"
+    decart_allowed_origins: str = ""
+    livekit_url: str = ""
     livekit_api_key: str = ""
     livekit_api_secret: str = ""
-    live_vto_max_duration_sec: int = 300  # 5 min hard cap
-    live_vto_token_ttl_sec: int = 300  # Decart client-token TTL (1-3600s); fresh token per session
-    live_vto_quota_per_hour: int = 10  # per-user sessions/hour
+    live_vto_max_duration_sec: int = 300
+    live_vto_token_ttl_sec: int = 300
+    live_vto_quota_per_hour: int = 10
     live_vto_max_concurrent_per_user: int = 2
-    live_vto_price_per_min_usd: float = 0.05  # configurable; 0 = not billed
+    live_vto_price_per_min_usd: float = 0.05
     live_vto_inactivity_timeout_sec: int = 120
 
     @property
     def is_production(self) -> bool:
-        return self.app_env == "production"
+        return self.app_env.lower() == "production"
 
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    def validate_production(self) -> None:
+        """Fail closed when production is configured with demo credentials/services."""
+        if not self.is_production:
+            return
+        problems: list[str] = []
+        for name, value in (("JWT_SECRET", self.jwt_secret), ("SIGNING_SECRET", self.signing_secret)):
+            if len(value) < 32 or value in {"dev-secret-change-me", "dev-signing-secret-change-me"}:
+                problems.append(f"{name} must be a unique secret of at least 32 characters")
+        if not self.database_url.startswith(("postgresql://", "postgresql+psycopg://")):
+            problems.append("DATABASE_URL must use PostgreSQL in production")
+        if not self.redis_url:
+            problems.append("REDIS_URL is required in production")
+        if self.otp_dev_mode:
+            problems.append("OTP_DEV_MODE must be false in production")
+        if self.admin_password in {"admin123", "change-me-admin", "demo1234"}:
+            problems.append("ADMIN_PASSWORD must be changed before production")
+        if self.tryon_provider == "mock":
+            problems.append("TRYON_PROVIDER=mock is not allowed in production")
+        if self.tryon_provider == "remote" and (not self.tryon_api_url or not self.tryon_api_key):
+            problems.append("TRYON_API_URL and TRYON_API_KEY are required for the remote try-on provider")
+        if self.live_vto_mock_enabled:
+            problems.append("LIVE_VTO_MOCK_ENABLED must be false in production")
+        if "*" in self.cors_origin_list:
+            problems.append("CORS_ORIGINS must not contain a wildcard in production")
+        if problems:
+            raise RuntimeError("Invalid production configuration: " + "; ".join(problems))
 
 
 @lru_cache
