@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     app_name: str = "Raritone"
     database_url: str = "sqlite:///./raritone.db"
     redis_url: str = ""
+    auto_create_schema: bool = True  # development only; production schema is managed by migrations
     cors_origins: str = "http://localhost:3000"
 
     jwt_secret: str = "dev-secret-change-me"
@@ -85,6 +86,8 @@ class Settings(BaseSettings):
         for name, value in (("JWT_SECRET", self.jwt_secret), ("SIGNING_SECRET", self.signing_secret)):
             if len(value) < 32 or value in {"dev-secret-change-me", "dev-signing-secret-change-me"}:
                 problems.append(f"{name} must be a unique secret of at least 32 characters")
+        if self.auto_create_schema:
+            problems.append("AUTO_CREATE_SCHEMA must be false in production; apply database migrations before deployment")
         if not self.database_url.startswith(("postgresql://", "postgresql+psycopg://")):
             problems.append("DATABASE_URL must use PostgreSQL in production")
         if not self.redis_url:
