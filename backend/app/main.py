@@ -29,43 +29,44 @@ async def lifespan(app: FastAPI):
         Base.metadata.create_all(bind=engine)
     else:
         log.info("AUTO_CREATE_SCHEMA=false; schema must be provisioned by the deployment migration job")
-    # Lightweight additive compatibility migration for existing databases.
-    # Use dialect-aware inspection (the previous PRAGMA-only migration silently
-    # skipped PostgreSQL, leaving existing product tables without these fields).
-    try:
-        from sqlalchemy import inspect
-        columns = {column["name"] for column in inspect(engine).get_columns("products")}
-        additions = {
-            "vto_image": "TEXT",
-            "vto_prompt": "TEXT",
-            "vto_ready": "BOOLEAN DEFAULT TRUE",
-            "vto_prompt_version": "INTEGER DEFAULT 1",
-            "retailer": "VARCHAR(40) DEFAULT ''",
-            "buy_url": "TEXT",
-        }
-        with engine.begin() as conn:
-            for name, sql_type in additions.items():
-                if name not in columns:
-                    conn.execute(text(f"ALTER TABLE products ADD COLUMN {name} {sql_type}"))
-    except Exception:
-        log.exception("Additive product compatibility migration failed")
-        if settings.is_production:
-            raise
-
-    if not settings.is_production:
-      try:
-        from app.seed import ensure_retailer_products, ensure_streak_catalog, ensure_system_products, seed_if_empty
-        db = SessionLocal()
+    if settings.auto_create_schema:
+        # Lightweight additive compatibility migration for existing databases.
+        # Use dialect-aware inspection (the previous PRAGMA-only migration silently
+        # skipped PostgreSQL, leaving existing product tables without these fields).
         try:
-            seed_if_empty(db)
-            ensure_system_products(db)
-            ensure_streak_catalog(db)
-            ensure_retailer_products(db)
-        finally:
-            db.close()
-      except Exception:
-        log.exception("Development seed failed")
-        raise
+            from sqlalchemy import inspect
+            columns = {column["name"] for column in inspect(engine).get_columns("products")}
+            additions = {
+                "vto_image": "TEXT",
+                "vto_prompt": "TEXT",
+                "vto_ready": "BOOLEAN DEFAULT TRUE",
+                "vto_prompt_version": "INTEGER DEFAULT 1",
+                "retailer": "VARCHAR(40) DEFAULT ''",
+                "buy_url": "TEXT",
+            }
+            with engine.begin() as conn:
+                for name, sql_type in additions.items():
+                    if name not in columns:
+                        conn.execute(text(f"ALTER TABLE products ADD COLUMN {name} {sql_type}"))
+        except Exception:
+            log.exception("Additive product compatibility migration failed")
+            if settings.is_production:
+                raise
+    
+    if not settings.is_production:
+        try:
+            from app.seed import ensure_retailer_products, ensure_streak_catalog, ensure_system_products, seed_if_empty
+            db = SessionLocal()
+            try:
+                seed_if_empty(db)
+                ensure_system_products(db)
+                ensure_streak_catalog(db)
+                ensure_retailer_products(db)
+            finally:
+                db.close()
+        except Exception:
+            log.exception("Development seed failed")
+            raise
     yield
 
 
