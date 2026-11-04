@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     redis_url: str = ""
     auto_create_schema: bool = True  # development only; production schema is managed by migrations
     cors_origins: str = "http://localhost:3000"
+    cors_origin_regex: str = ""  # optional, explicitly trusted extension-origin regex
 
     jwt_secret: str = "dev-secret-change-me"
     jwt_algorithm: str = "HS256"
