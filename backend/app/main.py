@@ -25,7 +25,10 @@ async def lifespan(app: FastAPI):
         from app.rate_limit import check_redis_connection
         check_redis_connection()
 
-    Base.metadata.create_all(bind=engine)
+    if settings.auto_create_schema:
+        Base.metadata.create_all(bind=engine)
+    else:
+        log.info("AUTO_CREATE_SCHEMA=false; schema must be provisioned by the deployment migration job")
     # Lightweight additive compatibility migration for existing databases.
     # Use dialect-aware inspection (the previous PRAGMA-only migration silently
     # skipped PostgreSQL, leaving existing product tables without these fields).
@@ -49,7 +52,8 @@ async def lifespan(app: FastAPI):
         if settings.is_production:
             raise
 
-    try:
+    if not settings.is_production:
+      try:
         from app.seed import ensure_retailer_products, ensure_streak_catalog, ensure_system_products, seed_if_empty
         db = SessionLocal()
         try:
@@ -59,10 +63,9 @@ async def lifespan(app: FastAPI):
             ensure_retailer_products(db)
         finally:
             db.close()
-    except Exception:
-        log.exception("Seed failed")
-        if settings.is_production:
-            raise
+      except Exception:
+        log.exception("Development seed failed")
+        raise
     yield
 
 
