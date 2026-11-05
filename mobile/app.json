@@ -7,6 +7,13 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "icon": "./assets/raritone-app-icon.png",
+    "splash": {
+      "image": "./assets/raritone-app-icon.png",
+      "imageWidth": 128,
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
     "plugins": [
       "expo-router",
       [
@@ -35,6 +42,10 @@
     },
     "android": {
       "package": "com.raritone.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/raritone-app-icon.png",
+        "backgroundColor": "#FFFFFF"
+      },
       "permissions": [
         "CAMERA",
         "READ_MEDIA_IMAGES"

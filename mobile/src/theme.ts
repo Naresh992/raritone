@@ -4,7 +4,7 @@ export const theme = {
     paper: "#FFFFFF",
     mist: "#EEF1ED",
     pale: "#E4EFEC",
-    teal: "#0B737C",
+    teal: "#1E666D",
     muted: "#646C6B",
     line: "#D9DEDA",
     soft: "#F5F6F4",
