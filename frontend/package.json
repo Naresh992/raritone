@@ -9,19 +9,19 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "14.2.5",
+    "@decartai/sdk": "^0.2.1",
+    "clsx": "2.1.1",
+    "next": "^15.5.29",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "zustand": "4.5.5",
-    "clsx": "2.1.1",
-    "@decartai/sdk": "^0.2.1"
+    "zustand": "4.5.5"
   },
   "devDependencies": {
     "@types/node": "20.14.12",
     "@types/react": "18.3.5",
     "@types/react-dom": "18.3.0",
     "autoprefixer": "10.4.20",
-    "postcss": "8.4.40",
+    "postcss": "^8.5.32",
     "tailwindcss": "3.4.7",
     "typescript": "5.5.4"
   }

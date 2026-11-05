@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "Raritone",
+    "slug": "raritone",
+    "scheme": "raritone",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Raritone uses your camera to capture a photo for virtual try-on.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Raritone uses selected photos only when you choose to create a try-on."
+        }
+      ],
+      "expo-secure-store",
+      "expo-font",
+      "expo-asset"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.raritone.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Capture a photo for a virtual try-on."
+      }
+    },
+    "android": {
+      "package": "com.raritone.app",
+      "permissions": [
+        "CAMERA",
+        "READ_MEDIA_IMAGES"
+      ]
+    },
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

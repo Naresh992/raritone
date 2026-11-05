@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Api } from "@/lib/api";
 import { useCart, useAuth, useToast } from "@/lib/store";
+import type { CartItem } from "@/lib/types";
 import { Button, Input, Label } from "@/components/ui";
 import { inr } from "@/lib/format";
 
@@ -12,6 +13,11 @@ export default function Checkout(){
   const { items, clear } = useCart();
   const { user } = useAuth();
   const toast=useToast(); const router=useRouter();
+  const [nativeCartMode,setNativeCartMode]=useState(false);
+  const [nativeCartItems,setNativeCartItems]=useState<CartItem[]|null>(null);
+  const [nativeCartLoading,setNativeCartLoading]=useState(true);
+  const [nativeCartError,setNativeCartError]=useState("");
+  const checkoutItems=nativeCartMode?(nativeCartItems||[]):items;
   const [step, setStep]=useState<Step>(1);
   const [delivery, setDelivery]=useState<"standard"|"express">("standard");
   const [paying, setPaying]=useState(false);
@@ -23,9 +29,38 @@ export default function Checkout(){
     }
   }, [user]);
 
-  if(!items.length) return <div className="max-w-[640px] mx-auto px-4 py-12 text-center">Your cart is empty. <a href="/shop" className="underline underline-offset-4">Shop now</a></div>;
+  useEffect(()=>{
+    let active=true;
+    const handoff=new URLSearchParams(window.location.search).get("native_cart");
+    if(!handoff){setNativeCartLoading(false);return ()=>{active=false};}
+    setNativeCartMode(true);
+    const payload=handoff;
+    async function loadNativeCart(){
+      try{
+        const entries=JSON.parse(payload);
+        if(!Array.isArray(entries)||entries.length<1||entries.length>30) throw new Error("The mobile cart could not be read. Return to the app and try again.");
+        const mapped:CartItem[]=await Promise.all(entries.map(async (entry:any)=>{
+          if(typeof entry?.slug!=="string"||typeof entry?.size!=="string") throw new Error("The mobile cart contains an invalid item.");
+          const product=await Api.product(entry.slug);
+          if(!product.in_stock) throw new Error(`${product.name} is currently unavailable.`);
+          if(!(product.sizes||[]).includes(entry.size)) throw new Error(`${product.name} is no longer available in size ${entry.size}.`);
+          const qty=Number(entry.qty);
+          if(!Number.isInteger(qty)||qty<1||qty>10) throw new Error("A cart quantity is invalid. Return to the app and update it.");
+          return {productId:product.id,slug:product.slug,name:product.name,brand:product.brand,price:product.price,salePrice:product.sale_price??(product.effective_price<product.price?product.effective_price:null),image:product.images?.[0]??null,size:entry.size,color:typeof entry.color==="string"?entry.color:null,qty};
+        }));
+        if(active)setNativeCartItems(mapped);
+      }catch(e:any){if(active){setNativeCartError(e.message||"Could not load the mobile cart.");setNativeCartItems([]);}}
+      finally{if(active)setNativeCartLoading(false);}
+    }
+    void loadNativeCart();
+    return ()=>{active=false};
+  },[]);
 
-  const subtotal = items.reduce((a,b)=> a+(b.salePrice??b.price)*b.qty,0);
+  if(nativeCartLoading) return <div className="max-w-[640px] mx-auto px-4 py-12 text-center">Preparing secure checkout…</div>;
+  if(nativeCartError) return <div className="max-w-[640px] mx-auto px-4 py-12 text-center"><p role="alert" className="text-red-300">{nativeCartError}</p><a href="/shop" className="mt-4 inline-block underline underline-offset-4">Return to shopping</a></div>;
+  if(!checkoutItems.length) return <div className="max-w-[640px] mx-auto px-4 py-12 text-center">Your cart is empty. <a href="/shop" className="underline underline-offset-4">Shop now</a></div>;
+
+  const subtotal = checkoutItems.reduce((a,b)=> a+(b.salePrice??b.price)*b.qty,0);
   const deliveryFee = delivery==="express" ? 199 : subtotal>=1999 ? 0 : 79;
   const total = subtotal + deliveryFee;
 
@@ -37,7 +72,7 @@ export default function Checkout(){
     setPaying(true);
     try{
       const order = await Api.createOrder({
-        items: items.map(it=>({ product_id: it.productId, size: it.size, color: it.color, qty: it.qty })),
+        items: checkoutItems.map(it=>({ product_id: it.productId, size: it.size, color: it.color, qty: it.qty })),
         address: { ...form, email: form.email || undefined },
         delivery_method: delivery,
       });
@@ -61,7 +96,7 @@ export default function Checkout(){
                 });
               }catch{}
               persistGuestToken(order);
-              clear(); router.push(`/order-confirmation/${order.id}${order.guest_token?`?token=${order.guest_token}`:""}`);
+              if(!nativeCartMode) clear(); router.push(`/order-confirmation/${order.id}${order.guest_token?`?token=${order.guest_token}`:""}`);
             },
             modal:{ ondismiss: ()=> setPaying(false) },
           });
@@ -72,7 +107,7 @@ export default function Checkout(){
       // demo payment fallback
       await Api.paymentsDemo(order.id);
       persistGuestToken(order);
-      clear();
+      if(!nativeCartMode) clear();
       router.push(`/order-confirmation/${order.id}${order.guest_token?`?token=${order.guest_token}`:""}`);
     }catch(e:any){
       toast.push(e.message||"Could not place order","error");
@@ -153,9 +188,9 @@ export default function Checkout(){
       </div>
 
       <div className="bg-coal border border-white/10 p-5 h-fit lg:sticky lg:top-[88px]">
-        <div className="font-display uppercase">Order summary · {items.length} items</div>
+        <div className="font-display uppercase">Order summary · {checkoutItems.length} items</div>
         <div className="mt-3 space-y-2 text-sm">
-          {items.map(it=>(
+          {checkoutItems.map(it=>(
             <div key={it.productId+it.size} className="flex justify-between text-smoke"><span>{it.name} ×{it.qty}</span><span>{inr((it.salePrice??it.price)*it.qty)}</span></div>
           ))}
           <div className="h-px bg-stoney-200 my-2"/>
