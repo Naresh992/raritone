@@ -18,6 +18,9 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, statusBarStyle: "default", title: "Raritone" },
   icons: { icon: "/icon-192.png", apple: "/apple-touch-icon.png" },
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  verification: {
+    google: "75A5YhSz9-cBZ9kP_cbkUkBgc1e2cevKoyHrpTjr3Gw",
+  },
   openGraph: { type:"website", siteName:"Raritone", title:"Raritone — Try Before You Buy", description:"AI-powered fashion shopping with virtual try-on." },
 };
 
